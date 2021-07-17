@@ -1,0 +1,12 @@
+# STOCKHOLM 1.0
+#=GF ID dummy_sequence-i1
+#=GF AU jackhmmer (HMMER 3.3.2)
+
+#=GS MGYP000587100529/133-185 DE [subseq from] PL=11 UP=0 BIOMES=0000000000001
+
+dummy_sequence                   GWSTELEKHREELKEFLKKEGITNVEIRIDNGRLEVRVE--GGTERLKRFLEELRQKLEKKGYTVDIKIE
+MGYP000587100529/133-185         ----DYDKAVEEAKAILAKENVTQAEIDVAKAKLQAAKDALNGTDTNKEALQNLADE-------------
+#=GR MGYP000587100529/133-185 PP ....567889************************98765336999999888887654.............
+#=GC PP_cons                     ....567889************************98765..6999999888887654.............
+#=GC RF                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//

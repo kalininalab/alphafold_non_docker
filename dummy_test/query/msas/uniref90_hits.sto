@@ -1,0 +1,12 @@
+# STOCKHOLM 1.0
+#=GF ID dummy_sequence-i1
+#=GF AU jackhmmer (HMMER 3.3.2)
+
+#=GS UniRef90_UPI00111186BC/1-68 DE [subseq from] Foldit1 n=1 Tax=synthetic construct TaxID=32630 RepID=UPI00111186BC
+
+dummy_sequence                      GWSTELEKHREELKEFLKKEGITNVEIRIDNGRLEVRVEGGTERLKRFLEELRQKLEKKGYTVDIKIE
+UniRef90_UPI00111186BC/1-68         GWSTELEKHREELKEFLKKEGITNVEIRIDNGRLEVRVEGGTERLKRFLEELRQKLEKKGYTVDIKIE
+#=GR UniRef90_UPI00111186BC/1-68 PP 9*****************************************************************98
+#=GC PP_cons                        9*****************************************************************98
+#=GC RF                             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//
