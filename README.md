@@ -84,6 +84,7 @@ Optional Parameters:
 -p <preset>       Choose preset model configuration - no ensembling (full_dbs) or 8 model ensemblings (casp14) (default: 'full_dbs')
 ```
 
+- One can also edit the script and modify the `CUDA_VISIBLE_DEVICES` to a different GPU than the device with id _0_, or to use more devices just change it to for example `CUDA_VISIBLE_DEVICES=0,1,2`
 - This script needs to be put into the top directory of the alphafold git repo that you have downloaded
 
 ```
