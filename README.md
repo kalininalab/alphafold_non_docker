@@ -66,7 +66,7 @@ cd ~/miniconda3/envs/alphafold/lib/python3.8/site-packages/ && patch -p0 < $alph
 
 ## Finally, running alphafold
 
-- Use this [bash script](https://wibi-git.helmholtz-hzi.de/ssr18/alphafold_non_docker/src/branch/master/run_alphafold.sh)
+- Use this [bash script](https://github.com/kalininalab/alphafold_non_docker/blob/main/run_alphafold.sh)
 
 ```
 Usage: run_alphafold.sh <OPTIONS>
