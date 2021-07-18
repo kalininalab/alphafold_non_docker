@@ -21,6 +21,8 @@ conda activate alphafold
 
 ## Install dependencies
 
+- Change `cudnn==8.2.1` and `cudatoolkit==11.0.3` versions if they are not supported in your system
+
 ```
 conda install -y -c anaconda cudnn==8.2.1
 conda install -y -c bioconda hmmer hhsuite==3.3.0 kalign2
@@ -31,7 +33,7 @@ conda install -y -c conda-forge openmm==7.5.1 cudatoolkit==11.0.3 pdbfixer
 
 ```
 git clone https://github.com/deepmind/alphafold.git
-alphafold_path = "/path/to/alphafold/git/repo"
+alphafold_path="/path/to/alphafold/git/repo"
 ```
 
 ## Download chemical properties to the common folder
@@ -41,6 +43,8 @@ wget -q -P alphafold/alphafold/common/ https://git.scicore.unibas.ch/schwede/ope
 ```
 
 ## Install alphafold dependencies
+
+- Change `jaxlib==0.1.69+cuda<111>` version if this is not supported in your system
 
 _Note:_ jax updgrade: cuda111 supports cuda 11.3 - https://github.com/google/jax/issues/6628
 
@@ -53,6 +57,8 @@ pip install --upgrade jax jaxlib==0.1.69+cuda111 -f https://storage.googleapis.c
 ## Apply OpenMM patch
 
 ```
+# $alphafold_path variable is set to the alphafold git repo directory (absolute path)
+
 cd ~/anaconda3/envs/alphafold/lib/python3.8/site-packages/ && patch -p0 < $alphafold_path/docker/openmm.patch
 
 # or
@@ -77,14 +83,13 @@ Required Parameters:
 -f <fasta_path>   Path to a FASTA file containing one sequence
 -t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets
 Optional Parameters:
--b <benchmark>    Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many
-    proteins (default: 'False')
+-b <benchmark>    Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many proteins (default: 'False')
 -g <use_gpu>      Enable NVIDIA runtime to run with GPUs(default: 'True')
--a <gpu_devices>  Comma separated list of devices to pass to 'NVIDIA_VISIBLE_DEVICES' (default: 'all')
+-a <gpu_devices>  Comma separated list of devices to pass to NVIDIA_VISIBLE_DEVICES' (default: 'all')
 -p <preset>       Choose preset model configuration - no ensembling (full_dbs) or 8 model ensemblings (casp14) (default: 'full_dbs')
 ```
 
-- One can also edit the script and modify the `CUDA_VISIBLE_DEVICES` to a different GPU than the device with id _0_, or to use more devices just change it to for example `CUDA_VISIBLE_DEVICES=0,1,2`
+- One can also edit the script and modify the `CUDA_VISIBLE_DEVICES` to a different GPU than the device with id '_0_' (default setting), or to use more devices just change it to, for example: `CUDA_VISIBLE_DEVICES=0,1,2`
 - This script needs to be put into the top directory of the alphafold git repo that you have downloaded
 
 ```
@@ -114,8 +119,8 @@ bash run_alphafold.sh -d ./alphafold_data/ -o ./dummy_test/ -m model_1 -f ./exam
 ```
 
 - The results folder `dummy_test` can be found in this git repo along with the query (`example/query.fasta`) used
+- The arguments to the script follows the original naming of the alphafold parameters, except for `fasta_paths`. This script can do only one fasta query at a time. So use a terminal multiplexer (example: tmux/screen) to do multiple runs.
 - For further information refer [here](https://github.com/deepmind/alphafold).
-- The arguments to the script follows the original naming of the alphafold parameters, except for `fasta_paths`. This script can do only one fasta query at a time. So use a tmux session or so to do multiple runs.
 - Happy folding!
 
 ### Disclaimer
