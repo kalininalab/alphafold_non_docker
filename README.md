@@ -21,12 +21,11 @@ conda activate alphafold
 
 ## Install dependencies
 
-- Change `cudnn==8.2.1` and `cudatoolkit==11.0.3` versions if they are not supported in your system
+- Change `cudnn==8.2.1.32` and `cudatoolkit==11.0.3` versions if they are not supported in your system
 
 ```
-conda install -y -c anaconda cudnn==8.2.1
-conda install -y -c bioconda hmmer hhsuite==3.3.0 kalign2
-conda install -y -c conda-forge openmm==7.5.1 cudatoolkit==11.0.3 pdbfixer
+conda install -y -c conda-forge openmm==7.5.1 cudnn==8.2.1.32 cudatoolkit==11.0.3 pdbfixer==1.7
+conda install -y -c bioconda hmmer==3.3.2 hhsuite==3.3.0 kalign2==2.04
 ```
 
 ## Download alphafold [git repo](https://github.com/deepmind/alphafold.git)
@@ -134,3 +133,5 @@ bash run_alphafold.sh -d ./alphafold_data/ -o ./dummy_test/ -m model_1 -f ./exam
         - OS: CentOS 7 (kernel 3.10.0-1160.24.1.el7.x86_64)
         - Cuda: 11.3
         - NVIDIA driver version: 470.42.01
+    - Storage
+        - Downloaded database size: 2.2 TB (uncompressed)
