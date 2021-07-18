@@ -54,6 +54,10 @@ pip install --upgrade jax jaxlib==0.1.69+cuda111 -f https://storage.googleapis.c
 
 ```
 cd ~/anaconda3/envs/alphafold/lib/python3.8/site-packages/ && patch -p0 < $alphafold_path/docker/openmm.patch
+
+# or
+
+cd ~/miniconda3/envs/alphafold/lib/python3.8/site-packages/ && patch -p0 < $alphafold_path/docker/openmm.patch
 ```
 
 ## Download all databases
