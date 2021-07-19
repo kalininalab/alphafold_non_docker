@@ -14,8 +14,8 @@ usage() {
         echo "Optional Parameters:"
         echo "-b <benchmark>    Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many
     proteins (default: 'False')"
-        echo "-g <use_gpu>      Enable NVIDIA runtime to run with GPUs(default: 'True')"
-        echo "-a <gpu_devices>  Comma separated list of devices to pass to 'NVIDIA_VISIBLE_DEVICES' (default: 'all')"
+        echo "-g <use_gpu>      Enable NVIDIA runtime to run with GPUs (default: 'True')"
+        echo "-a <gpu_devices>  Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 'all')"
         echo "-p <preset>       Choose preset model configuration - no ensembling (full_dbs) or 8 model ensemblings (casp14) (default: 'full_dbs')"
         echo ""
         exit 1
@@ -92,11 +92,15 @@ if [ ! -f "$alphafold_script" ]; then
     exit 1
 fi
 
-# Export ENVIRONMENT variables (change me if required)
+# Export ENVIRONMENT variables and set CUDA devices for use
 if [[ "$use_gpu" == true ]] ; then
     export CUDA_VISIBLE_DEVICES=0
+
+    if [[ "$gpu_devices" ]] ; then
+        export CUDA_VISIBLE_DEVICES=$gpu_devices
+    fi
 fi
-export NVIDIA_VISIBLE_DEVICES=$gpu_devices
+
 export TF_FORCE_UNIFIED_MEMORY='1'
 export XLA_PYTHON_CLIENT_MEM_FRACTION='4.0'
 

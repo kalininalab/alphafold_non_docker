@@ -83,12 +83,11 @@ Required Parameters:
 -t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets
 Optional Parameters:
 -b <benchmark>    Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many proteins (default: 'False')
--g <use_gpu>      Enable NVIDIA runtime to run with GPUs(default: 'True')
--a <gpu_devices>  Comma separated list of devices to pass to NVIDIA_VISIBLE_DEVICES' (default: 'all')
+-g <use_gpu>      Enable NVIDIA runtime to run with GPUs (default: 'True')
+-a <gpu_devices>  Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 'all')
 -p <preset>       Choose preset model configuration - no ensembling (full_dbs) or 8 model ensemblings (casp14) (default: 'full_dbs')
 ```
 
-- One can also edit the script and modify the `CUDA_VISIBLE_DEVICES` to a different GPU than the device with id '_0_' (default setting), or to use more devices just change it to, for example: `CUDA_VISIBLE_DEVICES=0,1,2`
 - This script needs to be put into the top directory of the alphafold git repo that you have downloaded
 
 ```
