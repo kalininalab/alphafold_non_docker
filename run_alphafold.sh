@@ -15,7 +15,7 @@ usage() {
         echo "-b <benchmark>    Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many
     proteins (default: 'False')"
         echo "-g <use_gpu>      Enable NVIDIA runtime to run with GPUs (default: 'True')"
-        echo "-a <gpu_devices>  Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 'all')"
+        echo "-a <gpu_devices>  Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)"
         echo "-p <preset>       Choose preset model configuration - no ensembling (full_dbs) or 8 model ensemblings (casp14) (default: 'full_dbs')"
         echo ""
         exit 1
@@ -71,7 +71,7 @@ if [[ "$use_gpu" == "" ]] ; then
 fi
 
 if [[ "$gpu_devices" == "" ]] ; then
-    gpu_devices="all"
+    gpu_devices=0
 fi
 
 if [[ "$preset" == "" ]] ; then
