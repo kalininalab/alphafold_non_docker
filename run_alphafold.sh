@@ -4,6 +4,7 @@
 
 usage() {
         echo ""
+        echo "Please make sure all required parameters are given"
         echo "Usage: $0 <OPTIONS>"
         echo "Required Parameters:"
         echo "-d <data_dir>     Path to directory of supporting data"
@@ -14,14 +15,14 @@ usage() {
         echo "Optional Parameters:"
         echo "-b <benchmark>    Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many
     proteins (default: 'False')"
-        echo "-g <use_gpu>      Enable NVIDIA runtime to run with GPUs (default: 'True')"
+        echo "-g <use_gpu>      Enable NVIDIA runtime to run with GPUs (default: True)"
         echo "-a <gpu_devices>  Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)"
         echo "-p <preset>       Choose preset model configuration - no ensembling (full_dbs) or 8 model ensemblings (casp14) (default: 'full_dbs')"
         echo ""
         exit 1
 }
 
-while getopts ":d:o:m:f:t:a:p:bg" i; do
+while getopts ":d:o:m:f:t:a:p:g:b" i; do
         case "${i}" in
         d)
                 data_dir=$OPTARG
@@ -42,7 +43,7 @@ while getopts ":d:o:m:f:t:a:p:bg" i; do
                 benchmark=true
         ;;
         g)
-                use_gpu=true
+                use_gpu=$OPTARG
         ;;
         a)
                 gpu_devices=$OPTARG
@@ -54,12 +55,8 @@ while getopts ":d:o:m:f:t:a:p:bg" i; do
 done
 
 # Parse input and set defaults
-if [[ "$data_dir" == "" || "$output_dir" == "" || "$model_names" == "" || "$fasta_path" == "" ]] ; then
+if [[ "$data_dir" == "" || "$output_dir" == "" || "$model_names" == "" || "$fasta_path" == "" || "$max_template_date" == "" ]] ; then
     usage
-fi
-
-if [[ "$max_template_date" == "" ]] ; then
-    max_template_date=None
 fi
 
 if [[ "$benchmark" == "" ]] ; then
@@ -93,6 +90,7 @@ if [ ! -f "$alphafold_script" ]; then
 fi
 
 # Export ENVIRONMENT variables and set CUDA devices for use
+export CUDA_VISIBLE_DEVICES=-1
 if [[ "$use_gpu" == true ]] ; then
     export CUDA_VISIBLE_DEVICES=0
 
