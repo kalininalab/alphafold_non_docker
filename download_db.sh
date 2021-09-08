@@ -22,7 +22,7 @@ usage() {
         exit 1
 }
 
-while getopts ":d:m" i; do
+while getopts ":d:m:" i; do
         case "${i}" in
         d)
                 download_dir=$OPTARG
