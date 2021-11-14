@@ -7,31 +7,30 @@ usage() {
         echo "Please make sure all required parameters are given"
         echo "Usage: $0 <OPTIONS>"
         echo "Required Parameters:"
-        echo "-d <data_dir>     Path to directory of supporting data"
-        echo "-o <output_dir>   Path to a directory that will store the results."
-        echo "-m <model_names>  Names of models to use (a comma separated list)"
-        echo "-f <fasta_path>   Path to a FASTA file containing one sequence"
+        echo "-d <data_dir>         Path to directory of supporting data"
+        echo "-o <output_dir>       Path to a directory that will store the results."
+        echo "-f <fasta_path>       Path to a FASTA file containing sequence. If a FASTA file contains multiple sequences, then it will be folded as a multimer"
         echo "-t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets"
         echo "Optional Parameters:"
+        echo "-g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)"
         echo "-n <openmm_threads>   OpenMM threads (default: all available cores)"
-        echo "-b <benchmark>    Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many proteins (default: 'False')"
-        echo "-g <use_gpu>      Enable NVIDIA runtime to run with GPUs (default: True)"
-        echo "-a <gpu_devices>  Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)"
-        echo "-p <preset>       Choose preset model configuration - no ensembling and smaller genetic database config (reduced_dbs), no ensembling and full genetic database config  (full_dbs) or full genetic database config and 8 model ensemblings (casp14)"
+        echo "-a <gpu_devices>      Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)"
+        echo "-m <model_preset>     Choose preset model configuration - the monomer model, the monomer model with extra ensembling, monomer model with pTM head, or multimer model (default: 'monomer')"
+        echo "-c <db_preset>        Choose preset MSA database configuration - smaller genetic database config (reduced_dbs) or full genetic database config (full_dbs) (default: 'full_dbs')"
+        echo "-p <use_precomputed_msas> Whether to read MSAs that have been written to disk. WARNING: This will not check if the sequence, database or configuration have changed (default: 'false')"
+        echo "-l <is_prokaryote>    Optional for multimer system, not used by the single chain system. A boolean specifying true where the target complex is from a prokaryote, and false where it is not, or where the origin is unknown. This value determine the pairing method for the MSA (default: 'None')"
+        echo "-b <benchmark>        Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many proteins (default: 'false')"
         echo ""
         exit 1
 }
 
-while getopts ":d:o:m:f:t:g:n:a:p:b" i; do
+while getopts ":d:o:f:t:g:n:a:m:c:p:l:b" i; do
         case "${i}" in
         d)
                 data_dir=$OPTARG
         ;;
         o)
                 output_dir=$OPTARG
-        ;;
-        m)
-                model_names=$OPTARG
         ;;
         f)
                 fasta_path=$OPTARG
@@ -48,8 +47,17 @@ while getopts ":d:o:m:f:t:g:n:a:p:b" i; do
         a)
                 gpu_devices=$OPTARG
         ;;
+        m)
+                model_preset=$OPTARG
+        ;;
+        c)
+                db_preset=$OPTARG
+        ;;
         p)
-                preset=$OPTARG
+                use_precomputed_msas=$OPTARG
+        ;;
+        l)
+                is_prokaryote=$OPTARG
         ;;
         b)
                 benchmark=true
@@ -58,7 +66,7 @@ while getopts ":d:o:m:f:t:g:n:a:p:b" i; do
 done
 
 # Parse input and set defaults
-if [[ "$data_dir" == "" || "$output_dir" == "" || "$model_names" == "" || "$fasta_path" == "" || "$max_template_date" == "" ]] ; then
+if [[ "$data_dir" == "" || "$output_dir" == "" || "$fasta_path" == "" || "$max_template_date" == "" ]] ; then
     usage
 fi
 
@@ -74,13 +82,26 @@ if [[ "$gpu_devices" == "" ]] ; then
     gpu_devices=0
 fi
 
-if [[ "$preset" == "" ]] ; then
-    preset="full_dbs"
+if [[ "$model_preset" == "" ]] ; then
+    model_preset="monomer"
 fi
 
-if [[ "$preset" != "full_dbs" && "$preset" != "casp14" && "$preset" != "reduced_dbs" ]] ; then
-    echo "Unknown preset! Using default ('full_dbs')"
-    preset="full_dbs"
+if [[ "$model_preset" != "monomer" && "$model_preset" != "monomer_casp14" && "$model_preset" != "monomer_ptm" && "$model_preset" != "multimer" ]] ; then
+    echo "Unknown model preset! Using default ('monomer')"
+    model_preset="monomer"
+fi
+
+if [[ "$db_preset" == "" ]] ; then
+    db_preset="full_dbs"
+fi
+
+if [[ "$db_preset" != "full_dbs" && "$db_preset" != "reduced_dbs" ]] ; then
+    echo "Unknown database preset! Using default ('full_dbs')"
+    db_preset="full_dbs"
+fi
+
+if [[ "$use_precomputed_msas" == "" ]] ; then
+    use_precomputed_msas="false"
 fi
 
 # This bash script looks for the run_alphafold.py script in its current working directory, if it does not exist then exits
@@ -115,14 +136,16 @@ export TF_FORCE_UNIFIED_MEMORY='1'
 export XLA_PYTHON_CLIENT_MEM_FRACTION='4.0'
 
 # Path and user config (change me if required)
+uniref90_database_path="$data_dir/uniref90/uniref90.fasta"
+uniprot_database_path="$data_dir/uniprot/uniprot.fasta"
+mgnify_database_path="$data_dir/mgnify/mgy_clusters_2018_12.fa"
 bfd_database_path="$data_dir/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 small_bfd_database_path="$data_dir/small_bfd/bfd-first_non_consensus_sequences.fasta"
-mgnify_database_path="$data_dir/mgnify/mgy_clusters.fa"
+uniclust30_database_path="$data_dir/uniclust30/uniclust30_2018_08/uniclust30_2018_08"
+pdb70_database_path="$data_dir/pdb70/pdb70"
+pdb_seqres_database_path="$data_dir/pdb_seqres/pdb_seqres.txt"
 template_mmcif_dir="$data_dir/pdb_mmcif/mmcif_files"
 obsolete_pdbs_path="$data_dir/pdb_mmcif/obsolete.dat"
-pdb70_database_path="$data_dir/pdb70/pdb70"
-uniclust30_database_path="$data_dir/uniclust30/uniclust30_2018_08/uniclust30_2018_08"
-uniref90_database_path="$data_dir/uniref90/uniref90.fasta"
 
 # Binary path (change me if required)
 hhblits_binary_path=$(which hhblits)
@@ -130,10 +153,27 @@ hhsearch_binary_path=$(which hhsearch)
 jackhmmer_binary_path=$(which jackhmmer)
 kalign_binary_path=$(which kalign)
 
-# Run AlphaFold with required parameters
-# 'reduced_dbs' preset does not use bfd and uniclust30 databases
-if [[ "$preset" == "reduced_dbs" ]]; then
-    $(python $alphafold_script --hhblits_binary_path=$hhblits_binary_path --hhsearch_binary_path=$hhsearch_binary_path --jackhmmer_binary_path=$jackhmmer_binary_path --kalign_binary_path=$kalign_binary_path --small_bfd_database_path=$small_bfd_database_path --mgnify_database_path=$mgnify_database_path --template_mmcif_dir=$template_mmcif_dir --obsolete_pdbs_path=$obsolete_pdbs_path --pdb70_database_path=$pdb70_database_path --uniref90_database_path=$uniref90_database_path --data_dir=$data_dir --output_dir=$output_dir --fasta_paths=$fasta_path --model_names=$model_names --max_template_date=$max_template_date --preset=$preset --benchmark=$benchmark --logtostderr)
+command_args="--fasta_paths=$fasta_path --output_dir=$output_dir --max_template_date=$max_template_date --db_preset=$db_preset --model_preset=$model_preset --benchmark=$benchmark --use_precomputed_msas=$use_precomputed_msas --logtostderr"
+
+database_paths="--uniref90_database_path=$uniref90_database_path --mgnify_database_path=$mgnify_database_path --data_dir=$data_dir --template_mmcif_dir=$template_mmcif_dir --obsolete_pdbs_path=$obsolete_pdbs_path"
+
+binary_paths="--hhblits_binary_path=$hhblits_binary_path --hhsearch_binary_path=$hhsearch_binary_path --jackhmmer_binary_path=$jackhmmer_binary_path --kalign_binary_path=$kalign_binary_path"
+
+if [[ $model_preset == "multimer" ]]; then
+	database_paths="$database_paths --uniprot_database_path=$uniprot_database_path --pdb_seqres_database_path=$pdb_seqres_database_path"
 else
-    $(python $alphafold_script --hhblits_binary_path=$hhblits_binary_path --hhsearch_binary_path=$hhsearch_binary_path --jackhmmer_binary_path=$jackhmmer_binary_path --kalign_binary_path=$kalign_binary_path --bfd_database_path=$bfd_database_path --mgnify_database_path=$mgnify_database_path --template_mmcif_dir=$template_mmcif_dir --obsolete_pdbs_path=$obsolete_pdbs_path --pdb70_database_path=$pdb70_database_path --uniclust30_database_path=$uniclust30_database_path --uniref90_database_path=$uniref90_database_path --data_dir=$data_dir --output_dir=$output_dir --fasta_paths=$fasta_path --model_names=$model_names --max_template_date=$max_template_date --preset=$preset --benchmark=$benchmark --logtostderr)
+	database_paths="$database_paths --pdb70_database_path=$pdb70_database_path"
 fi
+
+if [[ "$db_preset" == "reduced_dbs" ]]; then
+	database_paths="$database_paths --small_bfd_database_path=$small_bfd_database_path"
+else
+	database_paths="$database_paths --uniclust30_database_path=$uniclust30_database_path --bfd_database_path=$bfd_database_path"
+fi
+
+if [[ $is_prokaryote ]]; then
+	command_args="$command_args --is_prokaryote_list=$is_prokaryote"
+fi
+
+# Run AlphaFold with required parameters
+$(python $alphafold_script $binary_paths $database_paths $command_args)

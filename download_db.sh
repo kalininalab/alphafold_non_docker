@@ -69,15 +69,17 @@ mmcif_download_dir="$pdb_mmcif/data_dir"
 mmcif_files="$pdb_mmcif/mmcif_files"
 uniclust30="$download_dir/uniclust30"
 uniref90="$download_dir/uniref90"
+uniprot="$download_dir/uniprot"
+pdb_seqres="$download_dir/pdb_seqres"
 
 download_dir=$(realpath "$download_dir")
 mkdir --parents "$download_dir"
-mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniclust30" "$uniref90" 
+mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniclust30" "$uniref90" "uniprot" "pdb_seqres"
 
 # Download AF2 parameters
 echo "Downloading AF2 parameters"
-params_filename="alphafold_params_2021-07-14.tar"
-wget -P "$params" "https://storage.googleapis.com/alphafold/alphafold_params_2021-07-14.tar"
+params_filename="alphafold_params_2021-10-27.tar"
+wget -P "$params" "https://storage.googleapis.com/alphafold/alphafold_params_2021-10-27.tar"
 tar --extract --verbose --file="$params/$params_filename" --directory="$params" --preserve-permissions
 rm "$params/$params_filename"
 
@@ -102,7 +104,7 @@ fi
 # Download MGnify database
 echo "Downloading MGnify database"
 mgnify_filename="mgy_clusters.fa.gz"
-wget -P "$mgnify" "ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2018_12/mgy_clusters.fa.gz"
+wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/casp14_versions/mgy_clusters_2018_12.fa.gz"
 (cd "$mgnify" && gunzip "$mgnify/$mgnify_filename")
 
 # Download PDB70 database
@@ -139,5 +141,25 @@ echo "Downloading Unifef90 database"
 uniref90_filename="uniref90.fasta.gz"
 wget -P "$uniref90" "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
 (cd "$uniref90" && gunzip "$uniref90/$uniref90_filename")
+
+# Download Uniprot database
+echo "Downloading Uniprot (TrEMBL and Swiss-Prot) database"
+trembl_filename="uniprot_trembl.fasta.gz"
+trembl_unzipped_filename="uniprot_trembl.fasta"
+wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz"
+(cd "$uniprot" && gunzip "$uniprot/$trembl_filename")
+
+sprot_filename="uniprot_sprot.fasta.gz"
+sprot_unzipped_filename="uniprot_sprot.fasta"
+wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
+(cd "$uniprot" && gunzip "$uniprot/$sprot_filename")
+
+# Concatenate TrEMBL and Swiss-Prot, rename to uniprot and clean up.
+cat "$uniprot/$sprot_unzipped_filename" >> "$uniprot/$trembl_unzipped_filename"
+mv "$uniprot/$trembl_unzipped_filename" "$uniprot/uniprot.fasta"
+rm "$uniprot/$sprot_unzipped_filename"
+
+# Download PDB seqres database
+wget -P "$pdb_seqres" "ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt"
 
 echo "All AF2 required data is downloaded"
