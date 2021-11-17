@@ -103,14 +103,14 @@ fi
 
 # Download MGnify database
 echo "Downloading MGnify database"
-mgnify_filename="mgy_clusters.fa.gz"
-wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/casp14_versions/mgy_clusters_2018_12.fa.gz"
+mgnify_filename="mgy_clusters_2018_12.fa.gz"
+wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${mgnify_filename}"
 (cd "$mgnify" && gunzip "$mgnify/$mgnify_filename")
 
 # Download PDB70 database
 echo "Downloading PDB70 database"
 pdb70_filename="pdb70_from_mmcif_200401.tar.gz"
-wget -P "$pdb70" "http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/pdb70_from_mmcif_200401.tar.gz"
+wget -P "$pdb70" "http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/${pdb70_filename}"
 tar --extract --verbose --file="$pdb70/$pdb70_filename" --directory="$pdb70"
 rm "$pdb70/$pdb70_filename"
 
@@ -132,26 +132,26 @@ find "$mmcif_download_dir" -type d -empty -delete
 # Download Uniclust30 database
 echo "Downloading Uniclust30 database"
 uniclust30_filename="uniclust30_2018_08_hhsuite.tar.gz"
-wget -P "$uniclust30" "https://storage.googleapis.com/alphafold-databases/casp14_versions/uniclust30_2018_08_hhsuite.tar.gz"
+wget -P "$uniclust30" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${uniclust30_filename}"
 tar --extract --verbose --file="$uniclust30/$uniclust30_filename" --directory="$uniclust30"
 rm "$uniclust30/$uniclust30_filename"
 
 # Download Uniref90 database
 echo "Downloading Unifef90 database"
 uniref90_filename="uniref90.fasta.gz"
-wget -P "$uniref90" "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
+wget -P "$uniref90" "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/${uniref90_filename}"
 (cd "$uniref90" && gunzip "$uniref90/$uniref90_filename")
 
 # Download Uniprot database
 echo "Downloading Uniprot (TrEMBL and Swiss-Prot) database"
 trembl_filename="uniprot_trembl.fasta.gz"
 trembl_unzipped_filename="uniprot_trembl.fasta"
-wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz"
+wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/${trembl_filename}"
 (cd "$uniprot" && gunzip "$uniprot/$trembl_filename")
 
 sprot_filename="uniprot_sprot.fasta.gz"
 sprot_unzipped_filename="uniprot_sprot.fasta"
-wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
+wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/${sprot_filename}"
 (cd "$uniprot" && gunzip "$uniprot/$sprot_filename")
 
 # Concatenate TrEMBL and Swiss-Prot, rename to uniprot and clean up.
