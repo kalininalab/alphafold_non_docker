@@ -74,7 +74,7 @@ pdb_seqres="$download_dir/pdb_seqres"
 
 download_dir=$(realpath "$download_dir")
 mkdir --parents "$download_dir"
-mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniclust30" "$uniref90" "uniprot" "pdb_seqres"
+mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniclust30" "$uniref90" "$uniprot" "$pdb_seqres"
 
 # Download AF2 parameters
 echo "Downloading AF2 parameters"
