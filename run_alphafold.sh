@@ -18,13 +18,15 @@ usage() {
         echo "-m <model_preset>     Choose preset model configuration - the monomer model, the monomer model with extra ensembling, monomer model with pTM head, or multimer model (default: 'monomer')"
         echo "-c <db_preset>        Choose preset MSA database configuration - smaller genetic database config (reduced_dbs) or full genetic database config (full_dbs) (default: 'full_dbs')"
         echo "-p <use_precomputed_msas> Whether to read MSAs that have been written to disk. WARNING: This will not check if the sequence, database or configuration have changed (default: 'false')"
-        echo "-l <is_prokaryote>    Optional for multimer system, not used by the single chain system. A boolean specifying true where the target complex is from a prokaryote, and false where it is not, or where the origin is unknown. This value determine the pairing method for the MSA (default: 'None')"
+	echo "-i num_multimer_predictions_per_model [5]"
+	echo "-r run_relax [True]"
+	echo "-u use_gpu_relax [False]"
         echo "-b <benchmark>        Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many proteins (default: 'false')"
         echo ""
         exit 1
 }
 
-while getopts ":d:o:f:t:g:n:a:m:c:p:l:b" i; do
+while getopts ":d:o:f:t:g:n:a:m:c:p:l:i:r:u:b" i; do
         case "${i}" in
         d)
                 data_dir=$OPTARG
@@ -56,9 +58,15 @@ while getopts ":d:o:f:t:g:n:a:m:c:p:l:b" i; do
         p)
                 use_precomputed_msas=$OPTARG
         ;;
-        l)
-                is_prokaryote=$OPTARG
+	i)
+	        num_multimer_ppm=$OPTARG
         ;;
+	r)
+	        run_relax=$OPTARG
+	;;
+	u)
+	        use_gpu_relax=$OPTARG
+	;;
         b)
                 benchmark=true
         ;;
@@ -104,6 +112,18 @@ if [[ "$use_precomputed_msas" == "" ]] ; then
     use_precomputed_msas="false"
 fi
 
+if [[ "$num_multimer_ppm" == "" ]] ; then
+    num_multimer_ppm=5
+fi
+
+if [[ "$run_relax" == "" ]] ; then
+    run_relax="true"
+fi
+
+if [[ "$use_gpu_relax" == "" ]] ; then
+    use_gpu_relax="false"
+fi
+
 # This bash script looks for the run_alphafold.py script in its current working directory, if it does not exist then exits
 current_working_dir=$(pwd)
 alphafold_script="$current_working_dir/run_alphafold.py"
@@ -141,7 +161,7 @@ uniprot_database_path="$data_dir/uniprot/uniprot.fasta"
 mgnify_database_path="$data_dir/mgnify/mgy_clusters_2018_12.fa"
 bfd_database_path="$data_dir/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 small_bfd_database_path="$data_dir/small_bfd/bfd-first_non_consensus_sequences.fasta"
-uniclust30_database_path="$data_dir/uniclust30/uniclust30_2018_08/uniclust30_2018_08"
+uniclust30_database_path="$data_dir/uniclust30/uniclust30_2021_06/UniRef30_2021_06"
 pdb70_database_path="$data_dir/pdb70/pdb70"
 pdb_seqres_database_path="$data_dir/pdb_seqres/pdb_seqres.txt"
 template_mmcif_dir="$data_dir/pdb_mmcif/mmcif_files"
@@ -153,7 +173,7 @@ hhsearch_binary_path=$(which hhsearch)
 jackhmmer_binary_path=$(which jackhmmer)
 kalign_binary_path=$(which kalign)
 
-command_args="--fasta_paths=$fasta_path --output_dir=$output_dir --max_template_date=$max_template_date --db_preset=$db_preset --model_preset=$model_preset --benchmark=$benchmark --use_precomputed_msas=$use_precomputed_msas --logtostderr"
+command_args="--fasta_paths=$fasta_path --output_dir=$output_dir --max_template_date=$max_template_date --db_preset=$db_preset --model_preset=$model_preset --benchmark=$benchmark --use_precomputed_msas=$use_precomputed_msas --logtostderr --num_multimer_predictions_per_model=$num_multimer_ppm --run_relax=$run_relax --use_gpu_relax=$use_gpu_relax"
 
 database_paths="--uniref90_database_path=$uniref90_database_path --mgnify_database_path=$mgnify_database_path --data_dir=$data_dir --template_mmcif_dir=$template_mmcif_dir --obsolete_pdbs_path=$obsolete_pdbs_path"
 
