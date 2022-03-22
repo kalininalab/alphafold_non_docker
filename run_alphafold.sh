@@ -13,18 +13,20 @@ usage() {
         echo "-t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets"
         echo "Optional Parameters:"
         echo "-g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)"
+        echo "-r <run_relax>        Whether to run the final relaxation step on the predicted models. Turning relax off might result in predictions with distracting stereochemical violations but might help in case you are having issues with the relaxation stage (default: true)"
+        echo "-e <enable_gpu_relax> Run relax on GPU if GPU is enabled (default: true)"
         echo "-n <openmm_threads>   OpenMM threads (default: all available cores)"
         echo "-a <gpu_devices>      Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)"
         echo "-m <model_preset>     Choose preset model configuration - the monomer model, the monomer model with extra ensembling, monomer model with pTM head, or multimer model (default: 'monomer')"
         echo "-c <db_preset>        Choose preset MSA database configuration - smaller genetic database config (reduced_dbs) or full genetic database config (full_dbs) (default: 'full_dbs')"
         echo "-p <use_precomputed_msas> Whether to read MSAs that have been written to disk. WARNING: This will not check if the sequence, database or configuration have changed (default: 'false')"
-        echo "-l <is_prokaryote>    Optional for multimer system, not used by the single chain system. A boolean specifying true where the target complex is from a prokaryote, and false where it is not, or where the origin is unknown. This value determine the pairing method for the MSA (default: 'None')"
+        echo "-l <num_multimer_predictions_per_model> How many predictions (each with a different random seed) will be generated per model. E.g. if this is 2 and there are 5 models then there will be 10 predictions per input. Note: this FLAG only applies if model_preset=multimer (default: 5)"
         echo "-b <benchmark>        Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many proteins (default: 'false')"
         echo ""
         exit 1
 }
 
-while getopts ":d:o:f:t:g:n:a:m:c:p:l:b" i; do
+while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b" i; do
         case "${i}" in
         d)
                 data_dir=$OPTARG
@@ -40,6 +42,12 @@ while getopts ":d:o:f:t:g:n:a:m:c:p:l:b" i; do
         ;;
         g)
                 use_gpu=$OPTARG
+        ;;
+        r)
+                run_relax=$OPTARG
+        ;;
+        e)
+                enable_gpu_relax=$OPTARG
         ;;
         n)
                 openmm_threads=$OPTARG
@@ -57,7 +65,7 @@ while getopts ":d:o:f:t:g:n:a:m:c:p:l:b" i; do
                 use_precomputed_msas=$OPTARG
         ;;
         l)
-                is_prokaryote=$OPTARG
+                num_multimer_predictions_per_model=$OPTARG
         ;;
         b)
                 benchmark=true
@@ -80,6 +88,24 @@ fi
 
 if [[ "$gpu_devices" == "" ]] ; then
     gpu_devices=0
+fi
+
+if [[ "$run_relax" == "" ]] ; then
+    run_relax="true"
+fi
+
+if [[ "$enable_gpu_relax" == "" ]] ; then
+    enable_gpu_relax="true"
+fi
+
+if [[ "$enable_gpu_relax" == true && "$use_gpu" == true ]] ; then
+    use_gpu_relax="true"
+else
+    use_gpu_relax="false"
+fi
+
+if [[ "$num_multimer_predictions_per_model" == "" ]] ; then
+    num_multimer_predictions_per_model=5
 fi
 
 if [[ "$model_preset" == "" ]] ; then
@@ -153,7 +179,7 @@ hhsearch_binary_path=$(which hhsearch)
 jackhmmer_binary_path=$(which jackhmmer)
 kalign_binary_path=$(which kalign)
 
-command_args="--fasta_paths=$fasta_path --output_dir=$output_dir --max_template_date=$max_template_date --db_preset=$db_preset --model_preset=$model_preset --benchmark=$benchmark --use_precomputed_msas=$use_precomputed_msas --logtostderr"
+command_args="--fasta_paths=$fasta_path --output_dir=$output_dir --max_template_date=$max_template_date --db_preset=$db_preset --model_preset=$model_preset --benchmark=$benchmark --use_precomputed_msas=$use_precomputed_msas --num_multimer_predictions_per_model=$num_multimer_predictions_per_model --run_relax=$run_relax --use_gpu_relax=$use_gpu_relax --logtostderr"
 
 database_paths="--uniref90_database_path=$uniref90_database_path --mgnify_database_path=$mgnify_database_path --data_dir=$data_dir --template_mmcif_dir=$template_mmcif_dir --obsolete_pdbs_path=$obsolete_pdbs_path"
 
@@ -169,10 +195,6 @@ if [[ "$db_preset" == "reduced_dbs" ]]; then
 	database_paths="$database_paths --small_bfd_database_path=$small_bfd_database_path"
 else
 	database_paths="$database_paths --uniclust30_database_path=$uniclust30_database_path --bfd_database_path=$bfd_database_path"
-fi
-
-if [[ $is_prokaryote ]]; then
-	command_args="$command_args --is_prokaryote_list=$is_prokaryote"
 fi
 
 # Run AlphaFold with required parameters

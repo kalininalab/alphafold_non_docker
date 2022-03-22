@@ -29,21 +29,6 @@ conda install -y -c conda-forge openmm==7.5.1 cudnn==8.2.1.32 cudatoolkit==11.0.
 conda install -y -c bioconda hmmer==3.3.2 hhsuite==3.3.0 kalign2==2.04
 ```
 
-### **Download alphafold [git repo](https://github.com/deepmind/alphafold.git)**
-
-``` bash
-git clone https://github.com/deepmind/alphafold.git
-alphafold_path="/path/to/alphafold/git/repo"
-```
-
-### **Download chemical properties to the common folder**
-
-``` bash
-wget -q -P alphafold/alphafold/common/ https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
-```
-
-### **Install alphafold dependencies**
-
 - Change `jaxlib==0.1.69+cuda<111>` version if this is not supported in your system
 
 _Note:_ jax updgrade: cuda111 supports cuda 11.3 - https://github.com/google/jax/issues/6628
@@ -51,7 +36,19 @@ _Note:_ jax updgrade: cuda111 supports cuda 11.3 - https://github.com/google/jax
 ``` bash
 pip install absl-py==0.13.0 biopython==1.79 chex==0.0.7 dm-haiku==0.0.4 dm-tree==0.1.6 immutabledict==2.0.0 jax==0.2.14 ml-collections==0.1.0 numpy==1.19.5 scipy==1.7.0 tensorflow==2.5.0 pandas==1.3.4 tensorflow-cpu==2.5.0
 
-pip install --upgrade jax jaxlib==0.1.69+cuda111 -f https://storage.googleapis.com/jax-releases/jax_releases.html
+pip install --upgrade jax==0.2.14 jaxlib==0.1.69+cuda111 -f https://storage.googleapis.com/jax-releases/jax_releases.html
+```
+
+### **Download alphafold release v2.2.0**
+
+``` bash
+wget https://github.com/deepmind/alphafold/archive/refs/tags/v2.2.0.tar.gz && tar -xzf v2.2.0.tar.gz && export alphafold_path="$(pwd)/alphafold-2.2.0"
+```
+
+### **Download chemical properties to the common folder**
+
+``` bash
+wget -q -P $alphafold_path/alphafold/common/ https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
 ```
 
 ### **Apply OpenMM patch**
@@ -89,15 +86,11 @@ bash download_db.sh -d </home/johndoe/alphafold_data>
 bash download_db.sh -d </home/johndoe/alphafold_data> -m reduced_dbs
 ```
 
-### **Updating existing AlphaFold installation to include AlphaFold-Multimers (v2.1.1)**
-- Please refer to [this section](https://github.com/deepmind/alphafold#updating-existing-alphafold-installation-to-include-alphafold-multimers)
-
-
-## **Running alphafold (v2.1.1)**
+## **Running alphafold (v2.2.0)**
 - Use this [bash script](https://github.com/kalininalab/alphafold_non_docker/blob/main/run_alphafold.sh)
 
 ``` bash
-Usage: ./run_alphafold_v21.sh <OPTIONS>
+Usage: run_alphafold.sh <OPTIONS>
 Required Parameters:
 -d <data_dir>         Path to directory of supporting data
 -o <output_dir>       Path to a directory that will store the results.
@@ -105,13 +98,17 @@ Required Parameters:
 -t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets
 Optional Parameters:
 -g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)
+-r <run_relax>        Whether to run the final relaxation step on the predicted models. Turning relax off might result in predictions with distracting stereochemical violations but might help in case you are having issues with the relaxation stage (default: true)
+-e <enable_gpu_relax> Run relax on GPU if GPU is enabled (default: true)
 -n <openmm_threads>   OpenMM threads (default: all available cores)
 -a <gpu_devices>      Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)
 -m <model_preset>     Choose preset model configuration - the monomer model, the monomer model with extra ensembling, monomer model with pTM head, or multimer model (default: 'monomer')
 -c <db_preset>        Choose preset MSA database configuration - smaller genetic database config (reduced_dbs) or full genetic database config (full_dbs) (default: 'full_dbs')
 -p <use_precomputed_msas> Whether to read MSAs that have been written to disk. WARNING: This will not check if the sequence, database or configuration have changed (default: 'false')
--l <is_prokaryote>    Optional for multimer system, not used by the single chain system. A boolean specifying true where the target complex is from a prokaryote, and false where it is not, or where the origin is unknown. This value determine the pairing method for the MSA (default: 'None')
+-l <num_multimer_predictions_per_model> How many predictions (each with a different random seed) will be generated per model. E.g. if this is 2 and there are 5 models then there will be 10 predictions per input. Note: this FLAG only applies if model_preset=multimer (default: 5)
 -b <benchmark>        Run multiple JAX model evaluations to obtain a timing that excludes the compilation time, which should be more indicative of the time required for inferencing many proteins (default: 'false')
+
+
 ```
 
 - This script needs to be put into the top directory of the alphafold git repo that you have downloaded
@@ -134,7 +131,7 @@ alphafold
 └── setup.py
 ```
 
-- Put your query sequence in a fasta file <filename.fasta>. 
+- Put your query sequence in a fasta file <filename.fasta>.
 
     - In the below example query sequence was obtained from [here](https://colab.research.google.com/drive/1qWO6ArwDMeba1Nl57kk_cQ8aorJ76N6x)
 - Running the script
@@ -153,14 +150,13 @@ bash run_alphafold.sh -d ./alphafold_data/ -o ./dummy_test/ -f ./example/query.f
 - For further information refer [here](https://github.com/deepmind/alphafold)
 
 ### **Running AlphaFold-Multimer**
-- All steps are the same as when running the monomer system, but you will have to 
+- All steps are the same as when running the monomer system, but you will have to
     - provide an input fasta with multiple sequences,
     - set *-m multimer* option when running *run_alphafold.sh* script,
-    - optionally set the *-l* option with true or false that determine whether all input sequences in the given fasta file are prokaryotic. If that is not the case or the origin is unknown then set to false.
 
     ```
     # Example run (Uses the GPU with index id 0 as default)
-    bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f multimer_query.fasta -t 2021-11-01 -m multimer -l true
+    bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f multimer_query.fasta -t 2021-11-01 -m multimer
     ```
 
 ### **Examples (Modified from [AF2](https://github.com/deepmind/alphafold#examples))**
@@ -199,7 +195,7 @@ Say we have a homomer from a prokaryote with 3 copies of the same sequence
 Then run the following command:
 
 ```bash
-bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f homomer.fasta -t 2021-11-01 -m multimer -l true
+bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f homomer.fasta -t 2021-11-01 -m multimer
 ```
 
 #### **Folding a heteromer**
@@ -223,10 +219,16 @@ Say we have a heteromer A2B3 of unknown origin, i.e. with 2 copies of
 Then run the following command:
 
 ```bash
-bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f heteromer.fasta -t 2021-11-01 -m multimer -l false
+bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f heteromer.fasta -t 2021-11-01 -m multimer
 ```
 
-## **API changes between v2.0.0 and v2.1.1**
+## API changes
+### **API changes between v2.1.1 and v2.2.0**
+- The is_prokaryote option *-l* is removed.
+- New option *-l* is now used for setting the number of multimer predictions per model
+- Options for relaxation *-r* and to enable GPU relaxation *-e* are added
+
+### **API changes between v2.0.0 and v2.1.1**
 - The preset flag *-p* was split into *-c* (db_preset) and *-m* (model_preset) in our *run_alphafold.sh*
     - Four model presets (for option *-m*) are now supported
         - monomer
@@ -241,7 +243,7 @@ bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f heteromer.fasta -t 20
 ## **Disclaimer**
 
 - We do not guarantee that this will work for everyone
-- The non-docker version was tested with the following system configuration 
+- The non-docker version was tested with the following system configuration
     - Dell server
         - CPU: AMD EPYC 7601 2.2 GHz
         - RAM: 1 TB
