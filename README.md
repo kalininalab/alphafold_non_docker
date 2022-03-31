@@ -227,6 +227,7 @@ bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f heteromer.fasta -t 20
 - The is_prokaryote option *-l* is removed.
 - New option *-l* is now used for setting the number of multimer predictions per model
 - Options for relaxation *-r* and to enable GPU relaxation *-e* are added
+- AF2 parameters link has been updated in the download_db.sh script (users should download this new parameters when using AF2 v2.2.0)
 
 ### **API changes between v2.0.0 and v2.1.1**
 - The preset flag *-p* was split into *-c* (db_preset) and *-m* (model_preset) in our *run_alphafold.sh*
