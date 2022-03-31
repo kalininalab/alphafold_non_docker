@@ -78,8 +78,8 @@ mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_fi
 
 # Download AF2 parameters
 echo "Downloading AF2 parameters"
-params_filename="alphafold_params_2021-10-27.tar"
-wget -P "$params" "https://storage.googleapis.com/alphafold/alphafold_params_2021-10-27.tar"
+params_filename="alphafold_params_2022-03-02.tar"
+wget -P "$params" "https://storage.googleapis.com/alphafold/alphafold_params_2022-03-02.tar"
 tar --extract --verbose --file="$params/$params_filename" --directory="$params" --preserve-permissions
 rm "$params/$params_filename"
 
