@@ -22,27 +22,25 @@ conda activate alphafold
 
 ### **Install dependencies**
 
-- Change `cudnn==8.2.1.32` and `cudatoolkit==11.0.3` versions if they are not supported in your system
+- Change `cudatoolkit==11.2.2` version if it is not supported in your system
 
 ``` bash
-conda install -y -c conda-forge openmm==7.5.1 cudnn==8.2.1.32 cudatoolkit==11.0.3 pdbfixer==1.7
-conda install -y -c bioconda hmmer==3.3.2 hhsuite==3.3.0 kalign2==2.04
+conda install -y -c conda-forge openmm==7.5.1 cudatoolkit==11.2.2 pdbfixer
+conda install -y -c bioconda hmmer hhsuite==3.3.0 kalign2
 ```
 
-- Change `jaxlib==0.1.69+cuda<111>` version if this is not supported in your system
-
-_Note:_ jax upgrade: cuda111 supports cuda 11.3 - https://github.com/google/jax/issues/6628
+- Change `jaxlib==0.3.25+cuda11.cudnn805` version if this is not supported in your system
 
 ``` bash
-pip install absl-py==0.13.0 biopython==1.79 chex==0.0.7 dm-haiku==0.0.4 dm-tree==0.1.6 immutabledict==2.0.0 jax==0.2.14 ml-collections==0.1.0 numpy==1.19.5 scipy==1.7.0 tensorflow==2.5.0 pandas==1.3.4 tensorflow-cpu==2.5.0
+pip install absl-py==1.0.0 biopython==1.79 chex==0.0.7 dm-haiku==0.0.9 dm-tree==0.1.6 immutabledict==2.0.0 jax==0.3.25 ml-collections==0.1.0 numpy==1.21.6 pandas==1.3.4 protobuf==3.20.1 scipy==1.7.0 tensorflow-cpu==2.9.0
 
-pip install --upgrade jax==0.2.14 jaxlib==0.1.69+cuda111 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+pip install --upgrade --no-cache-dir jax==0.3.25 jaxlib==0.3.25+cuda11.cudnn805 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 ```
 
-### **Download alphafold release v2.2.0**
+### **Download alphafold release v2.3.0**
 
 ``` bash
-wget https://github.com/deepmind/alphafold/archive/refs/tags/v2.2.0.tar.gz && tar -xzf v2.2.0.tar.gz && export alphafold_path="$(pwd)/alphafold-2.2.0"
+wget https://github.com/deepmind/alphafold/archive/refs/tags/v2.3.0.tar.gz && tar -xzf v2.3.0.tar.gz && export alphafold_path="$(pwd)/alphafold-2.3.0"
 ```
 
 ### **Download chemical properties to the common folder**
