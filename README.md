@@ -40,7 +40,7 @@ pip install --upgrade --no-cache-dir jax==0.3.25 jaxlib==0.3.25+cuda11.cudnn805 
 ### **Download alphafold release v2.3.0**
 
 ``` bash
-wget https://github.com/deepmind/alphafold/archive/refs/tags/v2.3.0.tar.gz && tar -xzf v2.3.0.tar.gz && export alphafold_path="$(pwd)/alphafold-2.3.0"
+wget https://github.com/deepmind/alphafold/archive/refs/tags/v2.3.1.tar.gz && tar -xzf v2.3.1.tar.gz && export alphafold_path="$(pwd)/alphafold-2.3.1"
 ```
 
 ### **Download chemical properties to the common folder**
@@ -84,7 +84,7 @@ bash download_db.sh -d </home/johndoe/alphafold_data>
 bash download_db.sh -d </home/johndoe/alphafold_data> -m reduced_dbs
 ```
 
-## **Running alphafold (v2.2.0)**
+## **Running alphafold (v2.3.1)**
 - Use this [bash script](https://github.com/kalininalab/alphafold_non_docker/blob/main/run_alphafold.sh)
 
 ``` bash
