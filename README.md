@@ -37,7 +37,7 @@ pip install absl-py==1.0.0 biopython==1.79 chex==0.0.7 dm-haiku==0.0.9 dm-tree==
 pip install --upgrade --no-cache-dir jax==0.3.25 jaxlib==0.3.25+cuda11.cudnn805 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 ```
 
-### **Download alphafold release v2.3.0**
+### **Download alphafold release v2.3.1**
 
 ``` bash
 wget https://github.com/deepmind/alphafold/archive/refs/tags/v2.3.1.tar.gz && tar -xzf v2.3.1.tar.gz && export alphafold_path="$(pwd)/alphafold-2.3.1"
@@ -92,7 +92,7 @@ Usage: run_alphafold.sh <OPTIONS>
 Required Parameters:
 -d <data_dir>         Path to directory of supporting data
 -o <output_dir>       Path to a directory that will store the results.
--f <fasta_path>       Path to a FASTA file containing sequence. If a FASTA file contains multiple sequences, then it will be folded as a multimer
+-f <fasta_paths>      Path to FASTA files containing sequences. If a FASTA file contains multiple sequences, then it will be folded as a multimer. To fold more sequences one after another, write the files separated by a comma
 -t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets
 Optional Parameters:
 -g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)
@@ -221,6 +221,11 @@ bash run_alphafold.sh -d alphafold_data/ -o dummy_test/ -f heteromer.fasta -t 20
 ```
 
 ## API changes
+
+### **API changes between v2.2.0 and v2.3.1**
+- AF2 parameters link and database download links have been updated.
+- Updated package requirements
+
 ### **API changes between v2.1.1 and v2.2.0**
 - The is_prokaryote option *-l* is removed.
 - New option *-l* is now used for setting the number of multimer predictions per model

@@ -9,7 +9,7 @@ usage() {
         echo "Required Parameters:"
         echo "-d <data_dir>         Path to directory of supporting data"
         echo "-o <output_dir>       Path to a directory that will store the results."
-        echo "-f <fasta_path>       Path to a FASTA file containing sequence. If a FASTA file contains multiple sequences, then it will be folded as a multimer"
+        echo "-f <fasta_paths>      Path to FASTA files containing sequences. If a FASTA file contains multiple sequences, then it will be folded as a multimer. To fold more sequences one after another, write the files separated by a comma"
         echo "-t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets"
         echo "Optional Parameters:"
         echo "-g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)"
@@ -26,7 +26,7 @@ usage() {
         exit 1
 }
 
-while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b" i; do
+while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b:" i; do
         case "${i}" in
         d)
                 data_dir=$OPTARG
@@ -68,7 +68,7 @@ while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b" i; do
                 num_multimer_predictions_per_model=$OPTARG
         ;;
         b)
-                benchmark=true
+                benchmark=$OPTARG
         ;;
         esac
 done
