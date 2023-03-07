@@ -9,7 +9,7 @@ usage() {
         echo "Required Parameters:"
         echo "-d <data_dir>         Path to directory of supporting data"
         echo "-o <output_dir>       Path to a directory that will store the results."
-        echo "-f <fasta_path>       Path to a FASTA file containing sequence. If a FASTA file contains multiple sequences, then it will be folded as a multimer"
+        echo "-f <fasta_paths>      Path to FASTA files containing sequences. If a FASTA file contains multiple sequences, then it will be folded as a multimer. To fold more sequences one after another, write the files separated by a comma"
         echo "-t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets"
         echo "Optional Parameters:"
         echo "-g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)"
@@ -26,7 +26,7 @@ usage() {
         exit 1
 }
 
-while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b" i; do
+while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b:" i; do
         case "${i}" in
         d)
                 data_dir=$OPTARG
@@ -68,7 +68,7 @@ while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b" i; do
                 num_multimer_predictions_per_model=$OPTARG
         ;;
         b)
-                benchmark=true
+                benchmark=$OPTARG
         ;;
         esac
 done
@@ -164,10 +164,10 @@ export XLA_PYTHON_CLIENT_MEM_FRACTION='4.0'
 # Path and user config (change me if required)
 uniref90_database_path="$data_dir/uniref90/uniref90.fasta"
 uniprot_database_path="$data_dir/uniprot/uniprot.fasta"
-mgnify_database_path="$data_dir/mgnify/mgy_clusters_2018_12.fa"
+mgnify_database_path="$data_dir/mgnify/mgy_clusters_2022_05.fa"
 bfd_database_path="$data_dir/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 small_bfd_database_path="$data_dir/small_bfd/bfd-first_non_consensus_sequences.fasta"
-uniclust30_database_path="$data_dir/uniclust30/uniclust30_2018_08/uniclust30_2018_08"
+uniref30_database_path="$data_dir/uniref30/UniRef30_2021_03"
 pdb70_database_path="$data_dir/pdb70/pdb70"
 pdb_seqres_database_path="$data_dir/pdb_seqres/pdb_seqres.txt"
 template_mmcif_dir="$data_dir/pdb_mmcif/mmcif_files"
@@ -194,7 +194,7 @@ fi
 if [[ "$db_preset" == "reduced_dbs" ]]; then
 	database_paths="$database_paths --small_bfd_database_path=$small_bfd_database_path"
 else
-	database_paths="$database_paths --uniclust30_database_path=$uniclust30_database_path --bfd_database_path=$bfd_database_path"
+	database_paths="$database_paths --uniref30_database_path=$uniref30_database_path --bfd_database_path=$bfd_database_path"
 fi
 
 # Run AlphaFold with required parameters

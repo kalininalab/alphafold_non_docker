@@ -67,19 +67,19 @@ pdb70="$download_dir/pdb70"
 pdb_mmcif="$download_dir/pdb_mmcif"
 mmcif_download_dir="$pdb_mmcif/data_dir"
 mmcif_files="$pdb_mmcif/mmcif_files"
-uniclust30="$download_dir/uniclust30"
+uniref30="$download_dir/uniref30"
 uniref90="$download_dir/uniref90"
 uniprot="$download_dir/uniprot"
 pdb_seqres="$download_dir/pdb_seqres"
 
 download_dir=$(realpath "$download_dir")
 mkdir --parents "$download_dir"
-mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniclust30" "$uniref90" "$uniprot" "$pdb_seqres"
+mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniref30" "$uniref90" "$uniprot" "$pdb_seqres"
 
 # Download AF2 parameters
 echo "Downloading AF2 parameters"
-params_filename="alphafold_params_2022-03-02.tar"
-wget -P "$params" "https://storage.googleapis.com/alphafold/alphafold_params_2022-03-02.tar"
+params_filename="alphafold_params_2022-12-06.tar"
+wget -P "$params" "https://storage.googleapis.com/alphafold/${params_filename}"
 tar --extract --verbose --file="$params/$params_filename" --directory="$params" --preserve-permissions
 rm "$params/$params_filename"
 
@@ -89,7 +89,7 @@ if [[ "$download_mode" = "full_dbs" ]]; then
     bfd="$download_dir/bfd"
     mkdir "$bfd"
     bfd_filename="bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz"
-    wget -P "$bfd" "https://storage.googleapis.com/alphafold-databases/casp14_versions/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz"
+    wget -P "$bfd" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${bfd_filename}"
     tar --extract --verbose --file="$bfd/$bfd_filename" --directory="$bfd"
     rm "$bfd/$bfd_filename"
 else
@@ -97,14 +97,14 @@ else
     small_bfd="$download_dir/small_bfd"
     mkdir "$small_bfd"
     small_bfd_filename="bfd-first_non_consensus_sequences.fasta.gz"
-    wget -P "$small_bfd" "https://storage.googleapis.com/alphafold-databases/reduced_dbs/bfd-first_non_consensus_sequences.fasta.gz"
+    wget -P "$small_bfd" "https://storage.googleapis.com/alphafold-databases/reduced_dbs/${small_bfd_filename}"
     (cd "$small_bfd" && gunzip "$small_bfd/$small_bfd_filename")
 fi
 
 # Download MGnify database
 echo "Downloading MGnify database"
-mgnify_filename="mgy_clusters_2018_12.fa.gz"
-wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${mgnify_filename}"
+mgnify_filename="mgy_clusters_2022_05.fa.gz"
+wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/v2.3/${mgnify_filename}"
 (cd "$mgnify" && gunzip "$mgnify/$mgnify_filename")
 
 # Download PDB70 database
@@ -129,15 +129,15 @@ done
 
 find "$mmcif_download_dir" -type d -empty -delete
 
-# Download Uniclust30 database
-echo "Downloading Uniclust30 database"
-uniclust30_filename="uniclust30_2018_08_hhsuite.tar.gz"
-wget -P "$uniclust30" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${uniclust30_filename}"
-tar --extract --verbose --file="$uniclust30/$uniclust30_filename" --directory="$uniclust30"
-rm "$uniclust30/$uniclust30_filename"
+# Download Uniref30 database
+echo "Downloading Uniref30 database"
+uniref30_filename="UniRef30_2021_03.tar.gz"
+wget -P "$uniref30" "https://storage.googleapis.com/alphafold-databases/v2.3/${uniref30_filename}"
+tar --extract --verbose --file="$uniref30/$uniref30_filename" --directory="$uniref30"
+rm "$uniref30/$uniref30_filename"
 
 # Download Uniref90 database
-echo "Downloading Unifef90 database"
+echo "Downloading Uniref90 database"
 uniref90_filename="uniref90.fasta.gz"
 wget -P "$uniref90" "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/${uniref90_filename}"
 (cd "$uniref90" && gunzip "$uniref90/$uniref90_filename")
@@ -161,5 +161,7 @@ rm "$uniprot/$sprot_unzipped_filename"
 
 # Download PDB seqres database
 wget -P "$pdb_seqres" "ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt"
+grep --after-context=1 --no-group-separator '>.* mol:protein' "${pdb_seqres}/pdb_seqres.txt" > "${pdb_seqres}/pdb_seqres_filtered.txt"
+mv "${pdb_seqres}/pdb_seqres_filtered.txt" "${pdb_seqres}/pdb_seqres.txt"
 
 echo "All AF2 required data is downloaded"
