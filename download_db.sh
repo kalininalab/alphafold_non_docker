@@ -105,7 +105,7 @@ fi
 echo "Downloading MGnify database"
 mgnify_filename="mgy_clusters_2022_05.fa.gz"
 wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/v2.3/${mgnify_filename}"
-(cd "$mgnify" && gunzip "$mgnify/$mgnify_filename")
+(cd "$mgnify" && gunzip "$mgnify_filename")
 
 # Download PDB70 database
 echo "Downloading PDB70 database"
@@ -140,19 +140,19 @@ rm "$uniref30/$uniref30_filename"
 echo "Downloading Uniref90 database"
 uniref90_filename="uniref90.fasta.gz"
 wget -P "$uniref90" "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/${uniref90_filename}"
-(cd "$uniref90" && gunzip "$uniref90/$uniref90_filename")
+(cd "$uniref90" && gunzip "$uniref90_filename")
 
 # Download Uniprot database
 echo "Downloading Uniprot (TrEMBL and Swiss-Prot) database"
 trembl_filename="uniprot_trembl.fasta.gz"
 trembl_unzipped_filename="uniprot_trembl.fasta"
 wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/${trembl_filename}"
-(cd "$uniprot" && gunzip "$uniprot/$trembl_filename")
+(cd "$uniprot" && gunzip "$trembl_filename")
 
 sprot_filename="uniprot_sprot.fasta.gz"
 sprot_unzipped_filename="uniprot_sprot.fasta"
 wget -P "$uniprot" "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/${sprot_filename}"
-(cd "$uniprot" && gunzip "$uniprot/$sprot_filename")
+(cd "$uniprot" && gunzip "$sprot_filename")
 
 # Concatenate TrEMBL and Swiss-Prot, rename to uniprot and clean up.
 cat "$uniprot/$sprot_unzipped_filename" >> "$uniprot/$trembl_unzipped_filename"
