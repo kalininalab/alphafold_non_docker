@@ -13,7 +13,7 @@ usage() {
         echo "-t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets"
         echo "Optional Parameters:"
         echo "-g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)"
-        echo "-r <run_relax>        Whether to run the final relaxation step on the predicted models. Turning relax off might result in predictions with distracting stereochemical violations but might help in case you are having issues with the relaxation stage (default: true)"
+        echo "-r <models_to_relax>  The models to run the final relaxation step on ('all', 'best', or 'none' ). Turning relax off might result in predictions with distracting stereochemical violations but might help in case you are having issues with the relaxation stage (default: 'all')"
         echo "-e <enable_gpu_relax> Run relax on GPU if GPU is enabled (default: true)"
         echo "-n <openmm_threads>   OpenMM threads (default: all available cores)"
         echo "-a <gpu_devices>      Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)"
@@ -44,7 +44,7 @@ while getopts ":d:o:f:t:g:r:e:n:a:m:c:p:l:b:" i; do
                 use_gpu=$OPTARG
         ;;
         r)
-                run_relax=$OPTARG
+                models_to_relax=$OPTARG
         ;;
         e)
                 enable_gpu_relax=$OPTARG
@@ -90,8 +90,8 @@ if [[ "$gpu_devices" == "" ]] ; then
     gpu_devices=0
 fi
 
-if [[ "$run_relax" == "" ]] ; then
-    run_relax="true"
+if [[ "$models_to_relax" == "" ]] ; then
+    models_to_relax="all"
 fi
 
 if [[ "$enable_gpu_relax" == "" ]] ; then
@@ -179,7 +179,7 @@ hhsearch_binary_path=$(which hhsearch)
 jackhmmer_binary_path=$(which jackhmmer)
 kalign_binary_path=$(which kalign)
 
-command_args="--fasta_paths=$fasta_path --output_dir=$output_dir --max_template_date=$max_template_date --db_preset=$db_preset --model_preset=$model_preset --benchmark=$benchmark --use_precomputed_msas=$use_precomputed_msas --num_multimer_predictions_per_model=$num_multimer_predictions_per_model --run_relax=$run_relax --use_gpu_relax=$use_gpu_relax --logtostderr"
+command_args="--fasta_paths=$fasta_path --output_dir=$output_dir --max_template_date=$max_template_date --db_preset=$db_preset --model_preset=$model_preset --benchmark=$benchmark --use_precomputed_msas=$use_precomputed_msas --num_multimer_predictions_per_model=$num_multimer_predictions_per_model --models_to_relax=$models_to_relax --use_gpu_relax=$use_gpu_relax --logtostderr"
 
 database_paths="--uniref90_database_path=$uniref90_database_path --mgnify_database_path=$mgnify_database_path --data_dir=$data_dir --template_mmcif_dir=$template_mmcif_dir --obsolete_pdbs_path=$obsolete_pdbs_path"
 
