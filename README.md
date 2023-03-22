@@ -96,7 +96,7 @@ Required Parameters:
 -t <max_template_date> Maximum template release date to consider (ISO-8601 format - i.e. YYYY-MM-DD). Important if folding historical test sets
 Optional Parameters:
 -g <use_gpu>          Enable NVIDIA runtime to run with GPUs (default: true)
--r <models_to_relax>        The models to run the final relaxation step on ('all', 'best', or 'none' ). Turning relax off might result in predictions with distracting stereochemical violations but might help in case you are having issues with the relaxation stage (default: 'all')
+-r <models_to_relax>  The models to run the final relaxation step on ('all', 'best', or 'none' ). Turning relax off might result in predictions with distracting stereochemical violations but might help in case you are having issues with the relaxation stage (default: 'all')
 -e <enable_gpu_relax> Run relax on GPU if GPU is enabled (default: true)
 -n <openmm_threads>   OpenMM threads (default: all available cores)
 -a <gpu_devices>      Comma separated list of devices to pass to 'CUDA_VISIBLE_DEVICES' (default: 0)
